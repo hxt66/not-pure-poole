@@ -8,29 +8,127 @@ date: 2020-10-02 15:32 +0800
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>gtiit</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 0;
-        }
-        h1 {
-            color: #333;
-        }
-        p {
-            color: #666;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>弹球游戏</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+    }
+    canvas {
+      display: block;
+      margin: 0 auto;
+      background-color: #222;
+    }
+  </style>
 </head>
 <body>
-    <h1>欢迎来到我的网页！</h1>
-    <p>这是一个简单的 HTML 页面。</p>
-    <img src="https://via.placeholder.com/300" alt="示例图片" style="border-radius: 10px;">
-    <a href="https://github.com" target="_blank">访问 GitHub</a>
+  <canvas id="gameCanvas"></canvas>
+  <script>
+    // 获取canvas和上下文
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // 设置canvas大小
+    canvas.width = 600;
+    canvas.height = 400;
+
+    // 弹球的属性
+    let ballRadius = 10;
+    let x = canvas.width / 2;
+    let y = canvas.height - 30;
+    let dx = 2;
+    let dy = -2;
+
+    // 桌子的属性
+    let paddleHeight = 10;
+    let paddleWidth = 75;
+    let paddleX = (canvas.width - paddleWidth) / 2;
+
+    // 控制器属性
+    let rightPressed = false;
+    let leftPressed = false;
+
+    // 按键事件监听
+    document.addEventListener("keydown", keyDownHandler, false);
+    document.addEventListener("keyup", keyUpHandler, false);
+
+    // 键盘按下事件
+    function keyDownHandler(e) {
+      if (e.key === "Right" || e.key === "ArrowRight") {
+        rightPressed = true;
+      } else if (e.key === "Left" || e.key === "ArrowLeft") {
+        leftPressed = true;
+      }
+    }
+
+    // 键盘松开事件
+    function keyUpHandler(e) {
+      if (e.key === "Right" || e.key === "ArrowRight") {
+        rightPressed = false;
+      } else if (e.key === "Left" || e.key === "ArrowLeft") {
+        leftPressed = false;
+      }
+    }
+
+    // 绘制弹球
+    function drawBall() {
+      ctx.beginPath();
+      ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+      ctx.fillStyle = "#0095DD";
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    // 绘制桌子
+    function drawPaddle() {
+      ctx.beginPath();
+      ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+      ctx.fillStyle = "#0095DD";
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    // 绘制并更新游戏
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // 清空画布
+      drawBall();
+      drawPaddle();
+
+      // 弹球的边界检测
+      if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
+        dx = -dx;
+      }
+      if (y + dy < ballRadius) {
+        dy = -dy;
+      } else if (y + dy > canvas.height - ballRadius) {
+        // 检查与桌子碰撞
+        if (x > paddleX && x < paddleX + paddleWidth) {
+          dy = -dy;
+        } else {
+          // 游戏结束
+          alert("游戏结束!");
+          document.location.reload();
+        }
+      }
+
+      // 桌子的移动
+      if (rightPressed && paddleX < canvas.width - paddleWidth) {
+        paddleX += 7;
+      } else if (leftPressed && paddleX > 0) {
+        paddleX -= 7;
+      }
+
+      // 更新弹球的位置
+      x += dx;
+      y += dy;
+      requestAnimationFrame(draw); // 递归调用
+    }
+
+    // 启动游戏
+    draw();
+  </script>
 </body>
 </html>
